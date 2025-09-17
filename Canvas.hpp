@@ -10,9 +10,9 @@ private:
   char **_cores;
 
 public:
-  Canva(int largura, int altura, char pixel, char cores);
+  Canva();
   ~Canva();
-  void CriarCanva(Canva &Canva);
+  void CriarCanva(Canva &Canva, int altura, int largura);
   void DestruirCanvas(Canva &Canva);
   void ImprimirCanva(Canva &Canva);
   void DesenharPonto(Canva &Canva, int x, int y, char pixel, char cores);
