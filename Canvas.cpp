@@ -1,6 +1,7 @@
 #include "Canvas.hpp"
-#include <cstddef>
+#include <algorithm>
 #include <iostream>
+
 std::string GetColorCode(char cor) {
   switch (cor) {
   case 'K':
@@ -23,105 +24,173 @@ std::string GetColorCode(char cor) {
     return "\033[0m"; // Código para Resetar/Padrão
   }
 }
+
 void CriarCanva(Canva &Canva, int altura, int largura) {
   if (altura <= 0 || largura <= 0) {
     std::cout << GetColorCode('R');
     std::cout << "Error: Altura ou Largura invalida" << std::endl;
-  } else {
-    Canva.altura = altura;
-    Canva.largura = largura;
-    Canva.pixels = new char *[altura];
-    Canva.cores = new char *[altura];
-    for (int i = 0; i < altura; i++) {
-      Canva.pixels[i] = new char[largura];
-      Canva.cores[i] = new char[largura];
-
-      for (int j = 0; j < largura; j++) {
-        Canva.pixels[i][j] = ' ';
-        Canva.cores[i][j] = 'W';
-      }
+    Canva.pixels = nullptr;
+    Canva.cores = nullptr;
+    Canva.altura = 0;
+    Canva.largura = 0;
+    return;
+  }
+  Canva.altura = altura;
+  Canva.largura = largura;
+  Canva.pixels = new char *[altura];
+  Canva.cores = new char *[altura];
+  for (int i = 0; i < altura; i++) {
+    Canva.pixels[i] = new char[largura];
+    Canva.cores[i] = new char[largura];
+    for (int j = 0; j < largura; j++) {
+      Canva.pixels[i][j] = ' ';
+      Canva.cores[i][j] = 'W';
     }
   }
 }
+
 void DestruirCanvas(Canva &Canva) {
-  for (int i = 0; i < Canva.largura; i++) {
+  if (Canva.pixels == nullptr) {
+    return;
+  }
+  for (int i = 0; i < Canva.altura; i++) {
     delete[] Canva.pixels[i];
+    delete[] Canva.cores[i];
   }
   delete[] Canva.pixels;
+  delete[] Canva.cores;
+  Canva.pixels = nullptr;
+  Canva.cores = nullptr;
 }
+
 void ImprimirCanva(Canva &Canva) {
-  for (int i = 0; i < Canva.largura; i++) {
+  if (Canva.pixels == nullptr) {
+    return;
+  }
+
+  for (int i = 0; i <= Canva.largura; i++) {
     std::cout << "-";
   }
-  std::cout << "\n";
-  for (int i = 0; i < Canva.altura; i++) {
-    for (int j = 0; j < Canva.largura; j++) {
-      std::cout << "|";
-      std::cout << GetColorCode(Canva.cores[i][j]) << std::endl;
-      std::cout << Canva.pixels[i][j] << std::endl;
+ 
 
-      std::cout << "|";
+  for (int i = 0; i < Canva.altura; i++) {
+    std::cout << "|";
+    for (int j = 0; j < Canva.largura; j++) {
+      std::cout << GetColorCode(Canva.cores[i][j]) << Canva.pixels[i][j];
     }
-    std::cout << "\n";
+    std::cout << GetColorCode('W') << "|" << std::endl;
   }
+
+
+  for (int i = 0; i <= Canva.largura; i++) {
+    std::cout << "-";
+  }
+
 }
 
 void DesenharPonto(Canva &Canva, int x, int y, char pixel, char cores) {
-  if (x < 0 || x > Canva.altura || y < 0 || y > Canva.largura) {
-    std::cout << GetColorCode('R');
-    std::cout << "Error: X ou Y esta fora dos limites do Canva" << std::endl;
+  if (x < 0 || x >= Canva.largura || y < 0 || y >= Canva.altura) {
+    return;
   }
-  Canva.pixels[x][y] = pixel;
-  Canva.cores[x][y] = cores;
+  Canva.pixels[y][x] = pixel;
+  Canva.cores[y][x] = cores;
 }
 
 void DesenharLinha(Canva &Canva, int x1, int y1, int x2, int y2, char pixel,
                    char cores) {
-  if (x1 < 0 || x1 > Canva.altura || x2 < 0 || x2 < Canva.altura || y1 < 0 ||
-      y1 > Canva.largura || y2 < 0 || y2 > Canva.largura) {
-
-    std::cout << GetColorCode('R');
-    std::cout << "Error: X ou Y esta fora dos limites do Canva" << std::endl;
-  } else {
-    if (x1 == x2 || y1 == y2) {
-      for (int i = x1; i <= x2; i++) {
-        for (int j = y1; j <= y2; j++) {
-          Canva.cores[i][j] = cores;
-          Canva.pixels[i][j] = pixel;
-        }
-      }
-    } else {
-      std::cout << GetColorCode('R');
-      std::cout << "Error: A linha nao forma uma horizontal ou vertical"
-                << std::endl;
+  if (x1 == x2) {
+    if (y1 > y2)
+      std::swap(y1, y2);
+    for (int y = y1; y <= y2; y++) {
+      DesenharPonto(Canva, x1, y, pixel, cores);
     }
+  } else if (y1 == y2) {
+    if (x1 > x2)
+      std::swap(x1, x2);
+    for (int x = x1; x <= x2; x++) {
+      DesenharPonto(Canva, x, y1, pixel, cores);
+    }
+  } else {
+    std::cout << GetColorCode('R');
+    std::cout << "Error: A linha nao forma uma horizontal ou vertical"
+              << std::endl;
   }
 }
+
 void DesenharRetangulo(Canva &Canva, int x_superior_esquerdo,
                        int y_superior_esquerdo, int largura, int altura,
                        char pixel, char cores) {
-  if (x_superior_esquerdo < 0 || x_superior_esquerdo > Canva.altura ||
-      y_superior_esquerdo < 0 || y_superior_esquerdo > Canva.largura) {
+  int x2 = x_superior_esquerdo + largura - 1;
+  int y2 = y_superior_esquerdo + altura - 1;
 
-    std::cout << GetColorCode('R');
-    std::cout << "Error: X ou Y esta fora dos limites do Canva" << std::endl;
-  } else {
-    if (x_superior_esquerdo + altura > Canva.altura ||
-        y_superior_esquerdo + largura > Canva.largura) {
+  DesenharLinha(Canva, x_superior_esquerdo, y_superior_esquerdo, x2, y_superior_esquerdo, pixel, cores);
+  DesenharLinha(Canva, x_superior_esquerdo, y2, x2, y2, pixel, cores);
+  DesenharLinha(Canva, x_superior_esquerdo, y_superior_esquerdo, x_superior_esquerdo, y2, pixel, cores);
+  DesenharLinha(Canva, x2, y_superior_esquerdo, x2, y2, pixel, cores);
+}
 
-      std::cout << GetColorCode('R');
-      std::cout << "Error: X+altura ou Y+largura esta fora dos limites do Canva"
-                << std::endl;
-    } else {
-      for (int i = x_superior_esquerdo; i < x_superior_esquerdo + altura; i++) {
-        for (int j = y_superior_esquerdo; j < y_superior_esquerdo + largura;
-             j++) {
-          if (i == x_superior_esquerdo || j == y_superior_esquerdo) {
-            Canva.pixels[i][j] = pixel;
-            Canva.cores[i][j] = cores;
-          }
-        }
+void DesenharRetanguloPreenchido(Canva &Canva, int x_superior_esquerdo,
+                                 int y_superior_esquerdo, int largura,
+                                 int altura, char pixel, char cores) {
+  for (int i = 0; i < altura; i++) {
+    for (int j = 0; j < largura; j++) {
+      DesenharPonto(Canva, x_superior_esquerdo + j, y_superior_esquerdo + i, pixel, cores);
+    }
+  }
+}
+
+void RedimensionarCanva(Canva &Canva, int novaLargura, int novaAltura) {
+  struct Canva nova_tela;
+  CriarCanva(nova_tela, novaAltura, novaLargura);
+
+  if (nova_tela.pixels == nullptr) {
+    return;
+  }
+
+  int altura_comum = std::min(Canva.altura, novaAltura);
+  int largura_comum = std::min(Canva.largura, novaLargura);
+
+  for (int i = 0; i < altura_comum; i++) {
+    for (int j = 0; j < largura_comum; j++) {
+      nova_tela.pixels[i][j] = Canva.pixels[i][j];
+      nova_tela.cores[i][j] = Canva.cores[i][j];
+    }
+  }
+
+  DestruirCanvas(Canva);
+  Canva = nova_tela;
+}
+
+void SobreporCanvas(Canva &Canva_destino, Canva &Origem1, Canva &Origem2) {
+  if (Origem1.largura != Origem2.largura || Origem1.altura != Origem2.altura) {
+    return;
+  }
+  CriarCanva(Canva_destino, Origem1.altura, Origem1.largura);
+
+  for (int i = 0; i < Origem1.altura; i++) {
+    for (int j = 0; j < Origem1.largura; j++) {
+      Canva_destino.pixels[i][j] = Origem1.pixels[i][j];
+      Canva_destino.cores[i][j] = Origem1.cores[i][j];
+      if (Origem2.pixels[i][j] != ' ') {
+        Canva_destino.pixels[i][j] = Origem2.pixels[i][j];
+        Canva_destino.cores[i][j] = Origem2.cores[i][j];
       }
     }
   }
+}
+
+bool CompararCanvas(Canva &Canva1, Canva &Canva2) {
+  if (Canva1.largura != Canva2.largura || Canva1.altura != Canva2.altura) {
+    return false;
+  }
+
+  for (int i = 0; i < Canva1.altura; i++) {
+    for (int j = 0; j < Canva1.largura; j++) {
+      if (Canva1.pixels[i][j] != Canva2.pixels[i][j] ||
+          Canva1.cores[i][j] != Canva2.cores[i][j]) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
