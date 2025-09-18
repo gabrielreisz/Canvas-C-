@@ -1,24 +1,11 @@
 #ifndef CANVAS_HPP
 #define CANVAS_HPP
 
-class Canva {
-private:
+struct Canva {
   int largura;
   int altura;
   char **pixels;
   char **cores;
-
-public:
-  Canva();
-  ~Canva();
-  int getlargura();
-  int getaltura();
-  char getpixels();
-  char getcores();
-  void setlargura(int);
-  void setaltura(int);
-  void setpixels(char);
-  void setcores(char);
 };
 
 void CriarCanva(Canva &Canva, int altura, int largura);
