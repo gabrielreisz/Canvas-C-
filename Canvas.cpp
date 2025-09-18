@@ -1,6 +1,7 @@
 #include "Canvas.hpp"
 #include <algorithm>
 #include <iostream>
+#include <cstring>
 
 std::string GetColorCode(char cor) {
   switch (cor) {
@@ -64,14 +65,12 @@ void DestruirCanvas(Canva &Canva) {
 }
 
 void ImprimirCanva(Canva &Canva) {
-  if (Canva.pixels == nullptr) {
-    return;
-  }
+  
 
-  for (int i = 0; i <= Canva.largura; i++) {
+  for (int i = 0; i < Canva.largura; i++) {
     std::cout << "-";
   }
- 
+  std::cout << std::endl; 
 
   for (int i = 0; i < Canva.altura; i++) {
     std::cout << "|";
@@ -82,7 +81,7 @@ void ImprimirCanva(Canva &Canva) {
   }
 
 
-  for (int i = 0; i <= Canva.largura; i++) {
+  for (int i = 0; i < Canva.largura; i++) {
     std::cout << "-";
   }
 
