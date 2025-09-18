@@ -25,19 +25,18 @@ std::string GetColorCode(char cor) {
     return "\033[0m"; // Código para Resetar/Padrão
   }
 }
-
+//Criando Canva
 void CriarCanva(Canva &Canva, int altura, int largura) {
+  //se altura ou largura for negativo ou igual a zero mensagem de erro
   if (altura <= 0 || largura <= 0) {
     std::cout << GetColorCode('R');
     std::cout << "Error: Altura ou Largura invalida" << std::endl;
-    Canva.pixels = nullptr;
-    Canva.cores = nullptr;
-    Canva.altura = 0;
-    Canva.largura = 0;
     return;
   }
+  // Iniciação da estrutura do Struct
   Canva.altura = altura;
   Canva.largura = largura;
+  // Alocação Dinâmica
   Canva.pixels = new char *[altura];
   Canva.cores = new char *[altura];
   for (int i = 0; i < altura; i++) {
@@ -49,7 +48,7 @@ void CriarCanva(Canva &Canva, int altura, int largura) {
     }
   }
 }
-
+//Liberando espaço da memoria
 void DestruirCanvas(Canva &Canva) {
   if (Canva.pixels == nullptr) {
     return;
@@ -63,71 +62,75 @@ void DestruirCanvas(Canva &Canva) {
   Canva.pixels = nullptr;
   Canva.cores = nullptr;
 }
-
+//Imprimindo o Canva
 void ImprimirCanva(Canva &Canva) {
   
-
+  //imprimindo a borda superior
   for (int i = 0; i < Canva.largura; i++) {
     std::cout << "-";
   }
   std::cout << std::endl; 
 
   for (int i = 0; i < Canva.altura; i++) {
-    std::cout << "|";
+    std::cout << "|"; // borda lateral esquerda
     for (int j = 0; j < Canva.largura; j++) {
-      std::cout << GetColorCode(Canva.cores[i][j]) << Canva.pixels[i][j];
+      std::cout << GetColorCode(Canva.cores[i][j]) << Canva.pixels[i][j]; //imprimindo pixels com a cor
     }
-    std::cout << GetColorCode('W') << "|" << std::endl;
+    std::cout << GetColorCode('W') << "|" << std::endl;//borda lateral direita
   }
 
 
   for (int i = 0; i < Canva.largura; i++) {
-    std::cout << "-";
+    std::cout << "-";// borda inferior
   }
 
 }
-
+// Desenho de um Ponto
 void DesenharPonto(Canva &Canva, int x, int y, char pixel, char cores) {
   if (x < 0 || x >= Canva.largura || y < 0 || y >= Canva.altura) {
-    return;
+    std::cout<<GetColorCode('R')<<"Error: X ou Y fora da area do Canva"<<std::endl;
+    return; // verificao se o ponto esta dentro do canvas
   }
   Canva.pixels[y][x] = pixel;
   Canva.cores[y][x] = cores;
 }
-
+// Desenho de Linha
+// A verificao da condição de esta dentro do Canva sera realizada no ponto, como Desenhar linha chama desenahr ponto
 void DesenharLinha(Canva &Canva, int x1, int y1, int x2, int y2, char pixel,
                    char cores) {
-  if (x1 == x2) {
+  if (x1 == x2) { // Verificando se esta na vertical
     if (y1 > y2)
-      std::swap(y1, y2);
+      std::swap(y1, y2); //Verificando se esta começando do menor valor
     for (int y = y1; y <= y2; y++) {
       DesenharPonto(Canva, x1, y, pixel, cores);
     }
-  } else if (y1 == y2) {
+  } else if (y1 == y2) { // verificando se esta na horizontal
     if (x1 > x2)
-      std::swap(x1, x2);
+      std::swap(x1, x2); //Verificando se esta começando do menor valor
     for (int x = x1; x <= x2; x++) {
       DesenharPonto(Canva, x, y1, pixel, cores);
     }
   } else {
+    // caso não seja uma linha vertical  ou horizontal
     std::cout << GetColorCode('R');
     std::cout << "Error: A linha nao forma uma horizontal ou vertical"
               << std::endl;
   }
 }
-
+//Desenhando retangulo "oco"
 void DesenharRetangulo(Canva &Canva, int x_superior_esquerdo,
                        int y_superior_esquerdo, int largura, int altura,
                        char pixel, char cores) {
   int x2 = x_superior_esquerdo + largura - 1;
   int y2 = y_superior_esquerdo + altura - 1;
-
+  //Para desenhar o retangulo chama a funcao de desenhar linha
+  //a verificao da condição de estar dentro do Canva sera feita por desenhar ponto que e chamado dentro do desenhar linha
   DesenharLinha(Canva, x_superior_esquerdo, y_superior_esquerdo, x2, y_superior_esquerdo, pixel, cores);
   DesenharLinha(Canva, x_superior_esquerdo, y2, x2, y2, pixel, cores);
   DesenharLinha(Canva, x_superior_esquerdo, y_superior_esquerdo, x_superior_esquerdo, y2, pixel, cores);
   DesenharLinha(Canva, x2, y_superior_esquerdo, x2, y2, pixel, cores);
 }
-
+ // Desenhando Retangulo preenchido 
 void DesenharRetanguloPreenchido(Canva &Canva, int x_superior_esquerdo,
                                  int y_superior_esquerdo, int largura,
                                  int altura, char pixel, char cores) {
@@ -137,33 +140,36 @@ void DesenharRetanguloPreenchido(Canva &Canva, int x_superior_esquerdo,
     }
   }
 }
-
+// Redimensionando Canva
 void RedimensionarCanva(Canva &Canva, int novaLargura, int novaAltura) {
   struct Canva nova_tela;
   CriarCanva(nova_tela, novaAltura, novaLargura);
-
+// Criar um canva para ser usado como auxiliar
   if (nova_tela.pixels == nullptr) {
-    return;
+    return; //Verificando a existencia
   }
-
-  int altura_comum = std::min(Canva.altura, novaAltura);
+  //Pegando o menor valor para garantir que somente valores que existem
+  int altura_comum = std::min(Canva.altura, novaAltura); 
   int largura_comum = std::min(Canva.largura, novaLargura);
-
+  //copiando os pixels
   for (int i = 0; i < altura_comum; i++) {
     for (int j = 0; j < largura_comum; j++) {
       nova_tela.pixels[i][j] = Canva.pixels[i][j];
       nova_tela.cores[i][j] = Canva.cores[i][j];
     }
   }
-
+  //Destruindo a canva antiga
   DestruirCanvas(Canva);
   Canva = nova_tela;
 }
-
+// Sobreposição de Canvas
 void SobreporCanvas(Canva &Canva_destino, Canva &Origem1, Canva &Origem2) {
+  //Verificando se as dimensoes sao iguais
   if (Origem1.largura != Origem2.largura || Origem1.altura != Origem2.altura) {
+    std::cout<<GetColorCode('R')<<"Error: As dimensoes nao sao iguais"<<std::endl;
     return;
   }
+  //Criando o Canva Resultado
   CriarCanva(Canva_destino, Origem1.altura, Origem1.largura);
 
   for (int i = 0; i < Origem1.altura; i++) {
@@ -171,15 +177,17 @@ void SobreporCanvas(Canva &Canva_destino, Canva &Origem1, Canva &Origem2) {
       Canva_destino.pixels[i][j] = Origem1.pixels[i][j];
       Canva_destino.cores[i][j] = Origem1.cores[i][j];
       if (Origem2.pixels[i][j] != ' ') {
+        //Aplicando regra da sobreposição
         Canva_destino.pixels[i][j] = Origem2.pixels[i][j];
         Canva_destino.cores[i][j] = Origem2.cores[i][j];
       }
     }
   }
 }
-
+//Coparando canvas
 bool CompararCanvas(Canva &Canva1, Canva &Canva2) {
   if (Canva1.largura != Canva2.largura || Canva1.altura != Canva2.altura) {
+    //Verificando se as dimensoes sao iguais, caso nao seja ja não sao iguais
     return false;
   }
 
@@ -188,6 +196,7 @@ bool CompararCanvas(Canva &Canva1, Canva &Canva2) {
       if (Canva1.pixels[i][j] != Canva2.pixels[i][j] ||
           Canva1.cores[i][j] != Canva2.cores[i][j]) {
         return false;
+        //verificando se todos os pixels sao iguasi
       }
     }
   }
