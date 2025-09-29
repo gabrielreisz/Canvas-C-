@@ -108,11 +108,8 @@ Sinta-se à vontade para contribuir com este projeto. Algumas ideias para melhor
 - Adicionar suporte a desfazer/refazer
 - Implementar copy/paste entre canvas
 
-## 📄 Licença
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
-
 ## 🤝 Autor
-[Seu Nome]
+[Gabriel Costa Reis]
 
 ---
 Desenvolvido como parte do trabalho prático da disciplina INF112 - Programação II (2025/2)
