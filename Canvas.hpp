@@ -1,5 +1,6 @@
 #ifndef CANVAS_HPP
 #define CANVAS_HPP
+#include <string>
 
 class Canva {
 private:
@@ -11,14 +12,15 @@ private:
 public:
   Canva();
   ~Canva();
-  int getlargura();
-  int getaltura();
-  char getpixels();
-  char getcores();
-  void setlargura(int);
-  void setaltura(int);
-  void setpixels(char);
-  void setcores(char);
+  int getlargura() const;
+  int getaltura() const;
+  char** getpixels() const;
+  char** getcores() const;
+  void setlargura(int largura);
+  void setaltura(int altura);
+  void setpixels(char** pixels);
+  void setcores(char** cores);
+  std::string GetColorCode(char cor);
 };
 
 void CriarCanva(Canva &Canva, int altura, int largura);
