@@ -109,7 +109,7 @@ Sinta-se à vontade para contribuir com este projeto. Algumas ideias para melhor
 - Implementar copy/paste entre canvas
 
 ## 🤝 Autor
-[Gabriel Costa Reis]
+Gabriel Costa Reis
 
 ---
 Desenvolvido como parte do trabalho prático da disciplina INF112 - Programação II (2025/2)
