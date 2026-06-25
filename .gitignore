@@ -39,3 +39,10 @@
 
 # debug information files
 *.dwo
+
+# Build / CMake
+build/
+canvas
+
+# Arquivos gerados pelo editor
+*.ppm
